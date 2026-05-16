@@ -16,18 +16,18 @@ FLASH_RESERVE_START_KB 128
 APJ_BOARD_ID AP_HW_LECTRON_Pi5_H7
 
 # ============================================================
-# SERIAL / UART ORDER
-# OTG1   → USB-C                (PA11/PA12)
-# USART2 → TELEM3 / CM5 link   (PA3 RX, PD5 TX)
-# USART3 → DEBUG                (PD8 TX, PD9 RX)
-# UART4  → External UART        (PH13 TX, PH14 RX)
-# UART5  → TELEM2               (PC12 TX, PD2 RX)
-# USART6 → IO MCU               (PC6 TX, PC7 RX)  — IOMCU_UART, NOT in SERIAL_ORDER
-# UART7  → TELEM1               (PE8 TX, PF6 RX)
-# UART8  → GPS2                 (PE1 TX, PE0 RX)
-# USART1 → GPS1                 (PB6 TX, PB7 RX)
+# SERIAL / UART ORDER  (Pixhawk6X standardı)
+# SERIAL0 = OTG1   → USB-C                (PA11/PA12)
+# SERIAL1 = UART7  → TELEM1               (PE8 TX, PF6 RX)
+# SERIAL2 = UART5  → TELEM2               (PC12 TX, PD2 RX)
+# SERIAL3 = USART1 → GPS1                 (PB6 TX, PB7 RX)
+# SERIAL4 = UART8  → GPS2                 (PE1 TX, PE0 RX)
+# SERIAL5 = USART2 → TELEM3 / CM5 link   (PD5 TX, PA3 RX)
+# SERIAL6 = UART4  → External UART        (PH13 TX, PH14 RX)
+# SERIAL7 = USART3 → DEBUG                (PD8 TX, PD9 RX)
+# —      = USART6 → IO MCU               (PC6 TX, PC7 RX)  — IOMCU_UART, NOT in SERIAL_ORDER
 # ============================================================
-SERIAL_ORDER OTG1 USART2 USART3 UART4 UART5 UART7 USART1 UART8 
+SERIAL_ORDER OTG1 UART7 UART5 USART1 UART8 USART2 UART4 USART3
 
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
@@ -116,14 +116,27 @@ SPIDEV external1      SPI6 DEVID2 SP6_CS2  MODE3 2*MHZ 8*MHZ
 # I2C3: PA8/PH8   — External baro / ext connector
 # I2C4: PF14/PF15 — Internal sensor bus (BMM350, BMP390)
 # ============================================================
+# I2C bus internal/external ayrımı
+# Bitmask: bit N = bus N dahili demek
+# Bus 3 (I2C4, PF14/PF15) = internal (BMM350, BMP390)
+# Bus 0 (I2C1, PB8/PB9)   = external (GPS1 MAG)
+# Bus 1 (I2C2, PF1/PF0)   = external (GPS2 MAG)
+define HAL_I2C_INTERNAL_MASK 8
+
 I2C_ORDER I2C1 I2C2 I2C3 I2C4
 
+# I2C1, GPS+MAG
 PB8  I2C1_SCL I2C1
 PB9  I2C1_SDA I2C1
+
+# I2C2, GPS2+MAG
 PF1  I2C2_SCL I2C2
 PF0  I2C2_SDA I2C2
+
 PA8  I2C3_SCL I2C3
 PH8  I2C3_SDA I2C3
+
+# I2C4 internal
 PF14 I2C4_SCL I2C4
 PF15 I2C4_SDA I2C4
 
@@ -132,18 +145,20 @@ PF15 I2C4_SDA I2C4
 # ============================================================
 
 # IMUs — rotation values to be verified on first bench test
-define HAL_INS_DEFAULT_NEGATE_Z
-IMU Invensensev3 SPI:icm42670_fmu  ROTATION_NONE
-# IMU Invensensev3 SPI:icm42670_sens ROTATION_YAW_270
-IMU BMI270       SPI:bmi270        ROTATION_ROLL_180
+IMU Invensensev3 SPI:icm42670_fmu  ROTATION_ROLL_180
+IMU Invensensev3 SPI:icm42670_sens ROTATION_ROLL_180_YAW_270
+IMU BMI270       SPI:bmi270        ROTATION_PITCH_180
 
 # Barometers
 # FMU baseboard BMP390: I2C2 (idx 1) addr 0x77
 # Sensor board  BMP390: I2C4 (idx 3) addr 0x76
 BARO BMP388 I2C:1:0x77
-BARO BMP388 I2C:3:0x76
+BARO BMP388 I2C:3:0x77
 
-# Magnetometer — BMM350 on I2C4 (idx 3) addr 0x14
+# compass
+define HAL_PROBE_EXTERNAL_I2C_COMPASSES
+
+# Magnetometer — BMM350 on I2C4 (idx 3) addr 0x14 (internal)
 COMPASS BMM350 I2C:3:0x14 false ROTATION_NONE
 
 # ============================================================
@@ -308,24 +323,24 @@ ROMFS io_firmware.bin Tools/IO_Firmware/iofirmware_f103_lowpolh.bin
 STM32_ST_USE_TIMER 2
 
 # ============================================================
-# SERIAL DEFAULTS
+# SERIAL DEFAULTS  (Pixhawk6X standardı)
 # ============================================================
-# SERIAL_ORDER: OTG1 USART2 USART3 UART4 UART5 UART7 UART8 USART1
-# SERIAL0=OTG1(USB)  SERIAL1=USART2(TELEM3)  SERIAL2=USART3(DEBUG)
-# SERIAL3=UART4      SERIAL4=UART5(TELEM2)   SERIAL5=UART7(TELEM1)
-# SERIAL6=UART8(GPS2) SERIAL7=USART1(GPS1)
-define DEFAULT_SERIAL0_PROTOCOL  2
-define DEFAULT_SERIAL1_PROTOCOL  2
-define DEFAULT_SERIAL2_PROTOCOL  2
-define DEFAULT_SERIAL3_PROTOCOL  2
-define DEFAULT_SERIAL4_PROTOCOL  2
-define DEFAULT_SERIAL5_PROTOCOL  2
-define DEFAULT_SERIAL6_PROTOCOL  5
-define DEFAULT_SERIAL7_PROTOCOL  5
+# SERIAL_ORDER: OTG1 UART7 UART5 USART1 UART8 USART2 UART4 USART3
+# SERIAL0=OTG1(USB)    SERIAL1=UART7(TELEM1)  SERIAL2=UART5(TELEM2)
+# SERIAL3=USART1(GPS1) SERIAL4=UART8(GPS2)    SERIAL5=USART2(TELEM3)
+# SERIAL6=UART4(EXT)   SERIAL7=USART3(DEBUG)
+define DEFAULT_SERIAL0_PROTOCOL  2   # MAVLink2 — USB
+define DEFAULT_SERIAL1_PROTOCOL  2   # MAVLink2 — TELEM1
+define DEFAULT_SERIAL2_PROTOCOL  2   # MAVLink2 — TELEM2
+define DEFAULT_SERIAL3_PROTOCOL  5   # GPS — GPS1
+define DEFAULT_SERIAL4_PROTOCOL  5   # GPS — GPS2
+define DEFAULT_SERIAL5_PROTOCOL  2   # MAVLink2 — TELEM3
+define DEFAULT_SERIAL6_PROTOCOL  2   # MAVLink2 — External
+define DEFAULT_SERIAL7_PROTOCOL  2   # MAVLink2 — DEBUG
 define DEFAULT_SERIAL1_BAUD 57600
-define DEFAULT_SERIAL5_BAUD 57600
-define DEFAULT_SERIAL6_BAUD 38400
-define DEFAULT_SERIAL7_BAUD 38400
+define DEFAULT_SERIAL2_BAUD 57600
+define DEFAULT_SERIAL3_BAUD 38400
+define DEFAULT_SERIAL4_BAUD 38400
 
 # ============================================================
 # BOARD DEFINES

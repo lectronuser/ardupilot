@@ -435,10 +435,6 @@ bool AP_InertialSensor_Invensensev3::accumulate_samples(const FIFOData *data, ui
         accel *= accel_scale;
         gyro *= gyro_scale;
 
-#if defined(HAL_INS_DEFAULT_NEGATE_Z)
-        accel.z = -accel.z;
-        gyro.z  = -gyro.z;
-#endif
 
 #if INV3_ENABLE_FIFO_LOGGING
         Write_GYR(gyro_instance, tstart+(i*backend_period_us), gyro, true);
@@ -502,11 +498,6 @@ bool AP_InertialSensor_Invensensev3::accumulate_highres_samples(const FIFODataHi
 
         accel *= accel_scale;
         gyro *= gyro_scale;
-
-#if defined(HAL_INS_DEFAULT_NEGATE_Z)
-        accel.z = -accel.z;
-        gyro.z  = -gyro.z;
-#endif
 
 #if INV3_ENABLE_FIFO_LOGGING
         Write_GYR(gyro_instance, tstart+(i*backend_period_us), gyro, true);
