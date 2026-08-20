@@ -1,3 +1,6 @@
+# default to all pins low to avoid ESD issues
+DEFAULTGPIO OUTPUT LOW PULLDOWN
+
 MCU STM32H7xx STM32H753xx
 OSCILLATOR_HZ 16000000
 
@@ -152,23 +155,15 @@ PF5 SAFETY_IN INPUT PULLDOWN
 define HAL_INS_HIGHRES_SAMPLE 3
 define HAL_DEFAULT_INS_FAST_SAMPLE 7
 
-# INA238 battery monitor
-define HAL_BATTMON_INA2XX_BUS 0
-define HAL_BATTMON_INA2XX_ADDR 0
-define HAL_BATT_MONITOR_DEFAULT 21
-
 define HAL_STORAGE_SIZE 16384
 
 # allow to have have a dedicated safety switch pin
 define HAL_HAVE_SAFETY_SWITCH 1
 
-DMA_PRIORITY SPI2* SPI3* TIM5* SDMMC*
+DMA_PRIORITY SPI2* SPI3* TIM3* TIM5* SDMMC*
 
 # enable FAT filesystem support (needs a microSD defined via SDMMC)
 define HAL_OS_FATFS_IO 1
-
-# default to all pins low to avoid ESD issues
-DEFAULTGPIO OUTPUT LOW PULLDOWN
 
 define AP_BOOTLOADER_FLASHING_ENABLED 0
 env BUILD_ABIN True
