@@ -459,8 +459,12 @@ AP_HW_Accton_Godwit_GA1        7120
 
 # IDs 7140-7149 reserved for Lectron
 AP_HW_LECTRON_Pi5_H7            7140
-AP_HW_LECTRON_Jetson_H7         7141
-AP_HW_LECTRON_MFA               7142
+AP_HW_LECTRON_PI5_LIGHT_H7      7141
+AP_HW_LECTRON_MATRIX_H7         7142
+AP_HW_LECTRON_FPV_PRO_H7        7143
+AP_HW_LECTRON_FPV_H7            7144
+AP_HW_LECTRON_Jetson_H7         7145
+AP_HW_LECTRON_MFA               7146
 
 # please fill gaps in the above ranges rather than adding past ID #7199
 
