@@ -465,6 +465,7 @@ AP_HW_LECTRON_FPV_PRO_H7        7143
 AP_HW_LECTRON_FPV_H7            7144
 AP_HW_LECTRON_Jetson_H7         7145
 AP_HW_LECTRON_MFA               7146
+AP_HW_LECTRON_V6X               7147
 
 # please fill gaps in the above ranges rather than adding past ID #7199
 
